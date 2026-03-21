@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: { name: mr-shared-pvc, namespace: mapreduce }
+spec:
+  accessModes: ["ReadWriteMany"]
+  resources: { requests: { storage: 20Gi } }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: minio, namespace: mapreduce }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: minio } }
+  template:
+    metadata: { labels: { app: minio } }
+    spec:
+      containers:
+      - name: minio
+        image: minio/minio:RELEASE.2026-01-01T00-00-00Z
+        args: ["server","/data"]
+        env:
+        - name: MINIO_ROOT_USER
+          valueFrom: { secretKeyRef: { name: minio-credentials, key: MINIO_ROOT_USER } }
+        - name: MINIO_ROOT_PASSWORD
+          valueFrom: { secretKeyRef: { name: minio-credentials, key: MINIO_ROOT_PASSWORD } }
+        volumeMounts: [ { name: data, mountPath: /data } ]
+      volumes: [ { name: data, persistentVolumeClaim: { claimName: mr-shared-pvc } } ]
+---
+apiVersion: v1
+kind: Service
+metadata: { name: minio-svc, namespace: mapreduce }
+spec:
+  selector: { app: minio }
+  ports: [ { port: 9000, targetPort: 9000 } ]
+  type: ClusterIP

@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mr-worker-job-template
+  namespace: mapreduce
+data:
+  worker-job-template.yaml: |
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: mr-worker-{{JOB_ID}}-{{TASK_INDEX}}
+      namespace: mapreduce
+      labels:
+        app: mr-worker
+    spec:
+      backoffLimit: 4
+      template:
+        metadata:
+          labels:
+            app: mr-worker
+        spec:
+          serviceAccountName: mr-worker-sa
+          restartPolicy: Never
+          containers:
+          - name: worker
+            image: yourrepo/mr-worker:latest
+            args: ["--job-id={{JOB_ID}}","--task-index={{TASK_INDEX}}","--role={{ROLE}}"]
+            env:
+            - name: MINIO_ENDPOINT
+              value: http://minio-svc:9000
+            - name: MINIO_BUCKET
+              valueFrom: { configMapKeyRef: { name: mr-config, key: MINIO_BUCKET } }

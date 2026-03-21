@@ -1,0 +1,12 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mapreduce-worker-discovery
+spec:
+  template:
+    spec:
+      containers:
+      - name: worker
+        image: <το-username-σου>/mr-worker:v1  # Θα το κάνεις push στο Docker Hub
+      restartPolicy: Never
+  backoffLimit: 4

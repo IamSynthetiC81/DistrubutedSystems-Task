@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: mr-ui, namespace: mapreduce }
+spec:
+  replicas: 2
+  selector: { matchLabels: { app: mr-ui } }
+  template:
+    metadata: { labels: { app: mr-ui } }
+    spec:
+      containers:
+      - name: ui
+        image: yourrepo/mr-ui:latest
+        env:
+        - name: MANAGER_URL
+          value: http://mr-manager-svc:8080

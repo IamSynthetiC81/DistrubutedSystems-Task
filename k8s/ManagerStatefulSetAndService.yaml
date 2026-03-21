@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: { name: mr-manager, namespace: mapreduce }
+spec:
+  serviceName: mr-manager
+  replicas: 3
+  selector: { matchLabels: { app: mr-manager } }
+  template:
+    metadata: { labels: { app: mr-manager } }
+    spec:
+      serviceAccountName: mr-manager-sa
+      containers:
+      - name: manager
+        image: yourrepo/mr-manager:latest
+        ports: [ { containerPort: 8080 } ]
+        envFrom: [ { configMapRef: { name: mr-config } } ]
+---
+apiVersion: v1
+kind: Service
+metadata: { name: mr-manager-svc, namespace: mapreduce }
+spec:
+  selector: { app: mr-manager }
+  ports: [ { port: 8080, targetPort: 8080 } ]

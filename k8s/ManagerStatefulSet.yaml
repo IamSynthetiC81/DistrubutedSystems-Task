@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mr-manager
+spec:
+  serviceName: mr-manager
+  replicas: 3
+  selector: { matchLabels: { app: mr-manager } }
+  template:
+    metadata: { labels: { app: mr-manager } }
+    spec:
+      containers:
+      - name: manager
+        image: yourrepo/mr-manager:latest
+        env: [ { name: DATABASE_URL, value: "postgres://..." } ]
+        volumeMounts: [ { name: config, mountPath: /etc/mr } ]
+  volumeClaimTemplates:
+  - metadata: { name: config }
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources: { requests: { storage: 1Gi } }
