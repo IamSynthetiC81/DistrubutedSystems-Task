@@ -1,0 +1,18 @@
+sequenceDiagram
+    autonumber
+    participant Manager as Manager Service
+    participant K8s as Kubernetes API
+    participant Worker as Worker (K8s Job)
+    participant MinIO as Shared File System
+    participant DDS as DDS (Database)
+
+    Manager->>DDS: Ανάγνωση PENDING Jobs
+    DDS-->>Manager: Επιστροφή Job Data
+    Manager->>K8s: Εντολή Δημιουργίας K8s Job (Worker Pod)
+    K8s->>Worker: Εκκίνηση Worker Container
+    Worker->>MinIO: Ανάγνωση Δεδομένων Εισόδου (Input)
+    MinIO-->>Worker: Stream Δεδομένων
+    Note over Worker: Εκτέλεση Map/Reduce Logic
+    Worker->>MinIO: Εγγραφή Αποτελεσμάτων (Output)
+    Worker->>Manager: Αναφορά Ολοκλήρωσης (Task Finished)
+    Manager->>DDS: Ενημέρωση Κατάστασης (Status: COMPLETED)

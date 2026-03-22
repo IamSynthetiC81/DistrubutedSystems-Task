@@ -1,0 +1,18 @@
+sequenceDiagram
+    autonumber
+    actor User as Χρήστης (CLI)
+    participant Auth as Auth Service
+    participant UI as UI Service
+    participant Manager as Manager Service
+    participant DDS as DDS (Database)
+
+    User->>Auth: Request Login (Credentials)
+    Auth-->>User: Επιστροφή Token
+    User->>UI: Υποβολή Job (Map/Reduce files) + Token
+    UI->>Auth: Επαλήθευση Token (Validate)
+    Auth-->>UI: Token OK
+    UI->>Manager: Προώθηση Job Details
+    Manager->>DDS: Αποθήκευση νέου Job (Status: PENDING)
+    DDS-->>Manager: Επιβεβαίωση (Job ID)
+    Manager-->>UI: Επιστροφή Job ID
+    UI-->>User: Μήνυμα Επιτυχίας & Job ID

@@ -1,0 +1,22 @@
+Table Users {
+  user_id UUID [primary key]
+  username VARCHAR [unique]
+  role varchar
+}
+
+Table Jobs {
+  job_id UUID [primary key]
+  user_id UUID [ref: > Users.user_id]
+  status varchar
+  input_path VARCHAR
+  mapper_code_path VARCHAR
+  reducer_code_path VARCHAR
+}
+
+Table Tasks {
+  task_id UUID [primary key]
+  job_id UUID [ref: > Jobs.job_id]
+  task_type varchar
+  status varchar
+  worker_pod_id VARCHAR
+}
