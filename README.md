@@ -3,68 +3,71 @@
 **Course:** INF-419 Principles of Distributed Systems (Class Project 2026)  
 **Instructor:** Vasilis Samoladas  
 
+[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-Minikube-326ce5.svg)](https://kubernetes.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-DDS-336791.svg)](https://www.postgresql.org/)
+[![MinIO](https://img.shields.io/badge/MinIO-S3_Storage-c7202c.svg)](https://min.io/)
+
 ## Team Members
-| Name              | Student ID (AM) | GitHub Username |
-| :---------------- | :-------------- | :-------------- |
-| Kritikakis Marios | 2020030213      | IamSynthetiC81  |
+| Name | Student ID (AM) | GitHub Username |
+| :--- | :--- | :--- |
+| Όνομα 1 | 123456 | [@username1](https://github.com/username1) |
+| Όνομα 2 | 123456 | [@username2](https://github.com/username2) |
+| Όνομα 3 | 123456 | [@username3](https://github.com/username3) |
 
 ---
 
 ## Project Overview
-This project implements a distributed system for performing parallel computation based on the Map-Reduce paradigm, orchestrated via **Kubernetes**. The system is designed to scale horizontally and handle node failures gracefully, processing large datasets through custom mapper and reducer functions.
+This project implements a highly available, distributed Map-Reduce framework orchestrated natively by Kubernetes. It allows users to submit custom Python mapper and reducer scripts to process large datasets in parallel, handling all the underlying complexity of resource provisioning, data shuffling, and node failures.
 
-## Architecture & Microservices
-The system follows a 3-tier microservices architecture:
-* **UI Service (CLI):** Allows users to submit jobs and view their status.
-* **Authentication Service:** Powered by Keycloak, handling single sign-on (SSO) and user tokens.
-* **Manager Service:** The orchestrator of the system. It reads pending jobs, spawns Worker pods, and monitors their execution.
-* **Workers:** Ephemeral Kubernetes Jobs that execute the user-provided Map/Reduce code.
-* **Distributed Data Service (DDS):** PostgreSQL database storing the state of jobs and tasks.
-* **Shared File System:** MinIO (S3-compatible) for storing input data, intermediate shuffle data, and final outputs.
+## Key Architectural Features
+* **Strict State Consistency:** Uses PostgreSQL as the Distributed Data Service (DDS) to guarantee ACID transactions during the critical synchronization barrier between Map and Reduce phases.
+* **Lock-Free Data Shuffling:** Leverages MinIO (S3-compatible Object Storage) with strict namespace isolation (`s3://.../{job_id}/intermediate/`) to allow thousands of ephemeral workers to read/write concurrently without POSIX filesystem contention.
+* **Native Fault Tolerance:** Integrates directly with the Kubernetes API. Manager state is protected via `StatefulSet`, while worker failures (e.g., OOM kills) are automatically detected and restarted utilizing K8s `batch/v1 Jobs`.
+* **Enterprise Security:** Implements Keycloak for robust Identity and Access Management (IAM), issuing JWTs for secure REST API communication.
+* **Observability:** Full tracing of worker stdout/stderr logs and real-time job state monitoring via the Manager CLI.
 
-## Prerequisites
-To run this project locally, you need the following installed:
-* [Docker](https://www.docker.com/)
-* [Minikube](https://minikube.sigs.k8s.io/docs/start/) & `kubectl`
+## System Architecture
+The platform is built upon a 3-tier microservices architecture:
+1. **UI Service (CLI):** The user-facing gateway for submitting jobs and checking status.
+2. **Auth Service:** The SSO and token validation endpoint.
+3. **Manager Service:** The core orchestrator that parses the DDS, spawns Kubernetes Jobs, and coordinates the Shuffling phase.
+4. **Workers:** Ephemeral K8s pods executing user-defined compute logic.
+
+---
+
+## Local Development & Deployment
+
+### Prerequisites
+* Docker & [Minikube](https://minikube.sigs.k8s.io/docs/start/)
+* kubectl CLI installed
 * Python 3.9+
 
-## How to Run (Local Development)
+### Quick Start
 
-**1. Start Minikube**
+**1. Start the Kubernetes Cluster**
 ```bash
 minikube start --cpus=4 --memory=8192
 ```
 
 **2. Deploy Infrastructure (MinIO & PostgreSQL)**
+
+> [!NOTE]
+> Ensure your current directory is the project root and the k8s folder contains your manifests for MinIO and PostgreSQL.
+
 ```bash
-kubectl apply -f k8s/infrastructure/
+kubectl apply -f k8s/
 ```
 
-**3. Build and Push Worker Images**
-```bash
-cd services/worker
-docker build -t iamsynthetic/mr-worker:v1 .
-docker push iamsynthetic/mr-worker:v1
-```
-
-**4. Deploy Microservices**
-```bash
-kubectl apply -f k8s/manager/
-```
-
-## Repo Structure
-```
-
-├── README.md
-├── doc/                - Design documents, UML diagrams, and presentation files.
-│   ├── report.tex
-│   └── diagrams/
-├── k8s/                - Kubernetes manifests (Deployments, Services, StatefulSets, Jobs).
-│   ├── infrastructure/
-├── services/           - Source code for all microservices and workers.
-│   ├── ui-service/
-│   ├── auth-service/
-│   ├── manager-service/
-│   └── worker/
-├── benchmarks/         - Test datasets and sample mapper/reducer functions.
-```
+Project Roadmap (Milestones)
+- [x] Milestone 1: System Design (March 22, 2026)
+  - Technology Stack Selection
+  - REST API Specifications
+  - Data Schema (DDS) & Storage Namespaces
+  - UML Interaction Diagrams
+- [ ] Milestone 2: Implementation (May 31, 2026)
+  - Microservices Development (Python/FastAPI)
+  - Kubernetes Manifests complete
+  - Map-Reduce shuffling logic execution
+- [ ] Milestone 3: Final Delivery & Benchmarking
+  - Performance evaluation with large datasets
