@@ -41,3 +41,27 @@ Thumbs.db
 
 # Jupyter
 .ipynb_checkpoints/
+
+# --- ΠΡΟΣΘΗΚΕΣ ΓΙΑ TO MAP-REDUCE PROJECT ---
+
+# LaTeX / PDF Compilation artifacts
+*.aux
+*.bbl
+*.blg
+*.fls
+*.log
+*.out
+*.toc
+*.fdb_latexmk
+*.synctex.gz
+*.xdv
+
+# Local Data / Benchmarks (Μην ανεβάζετε τεράστια αρχεία δεδομένων στο git)
+data/
+*.csv
+*.tsv
+*.large.json
+*.large.txt
+
+# Kubernetes / Minikube local configs (αν τυχόν δημιουργηθούν)
+.minikube/
