@@ -11,9 +11,8 @@
 ## Team Members
 | Name | Student ID (AM) | GitHub Username |
 | :--- | :--- | :--- |
-| Όνομα 1 | 123456 | [@username1](https://github.com/username1) |
-| Όνομα 2 | 123456 | [@username2](https://github.com/username2) |
-| Όνομα 3 | 123456 | [@username3](https://github.com/username3) |
+| Μάριος Κρητικάκης | 2020030213 | [@IamSynthetiC81](https://github.com/IamSynthetiC81) |
+
 
 ---
 
